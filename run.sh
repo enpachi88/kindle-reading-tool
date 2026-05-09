@@ -64,6 +64,14 @@ case "$SPLIT_CHOICE" in
     *) SPREAD_MODE="R2L" ;; # デフォルトはマンガ・縦書き
 esac
 
+echo ""
+echo "▶ ページをめくった後の「待機時間（秒）」を設定してください"
+echo "  ※イラスト集など、読み込みが遅い本の場合は 3 や 5 を指定してください"
+read -p "秒数を入力 [デフォルト: 1]: " WAIT_SEC
+if [ -z "$WAIT_SEC" ]; then
+    WAIT_SEC="1"
+fi
+
 # 仮想環境の有効化
 if [ -d "venv" ]; then
     source venv/bin/activate
@@ -92,7 +100,7 @@ fi
 
 echo ""
 echo "▶ 1. Kindleのキャプチャと画像分割を開始します..."
-python 01_capture_kindle.py $PAGES $TARGET_APP $TURN_DIR $SPREAD_MODE
+python 01_capture_kindle.py $PAGES $TARGET_APP $TURN_DIR $SPREAD_MODE $WAIT_SEC
 
 echo ""
 echo "▶ 2. Cloud Vision APIによる超高精度文字起こしを実行中..."

@@ -21,9 +21,13 @@ TARGET_APP = sys.argv[2] if len(sys.argv) > 2 else 'APP'
 TURN_DIR = sys.argv[3] if len(sys.argv) > 3 else 'LEFT'
 SPREAD_MODE = sys.argv[4] if len(sys.argv) > 4 else 'R2L'
 
+try:
+    WAIT_TIME = float(sys.argv[5])
+except (IndexError, ValueError):
+    WAIT_TIME = 1.0
+
 START_PAGE = 1
 END_PAGE = PAGES_TO_SCAN
-WAIT_TIME = 1.0
 
 # 見開き(2ページ分)の自動分割に関する設定
 if SPREAD_MODE == 'NONE':
