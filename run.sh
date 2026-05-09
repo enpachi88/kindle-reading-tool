@@ -23,10 +23,39 @@ else
 fi
 
 echo ""
-echo "▶ 本の種類（見開き分割・読む方向）を選択してください"
-echo "  1: 横書き・実用書 (左から右へ読む L2R)"
-echo "  2: 縦書き・マンガ (右から左へ読む R2L)"
-echo "  3: 分割しない (1画面1ページとしてそのまま保存)"
+echo "▶ 対象アプリを選択してください"
+echo "  1: Kindle アプリ (マウスクリックでページをめくる)"
+echo "  2: Kindle Cloud Reader ブラウザ版 (矢印キーでページをめくる)"
+read -p "番号を入力 (1-2) [デフォルト: 1]: " TARGET_CHOICE
+
+if [ "$TARGET_CHOICE" = "2" ]; then
+    TARGET_APP="CLOUD"
+else
+    TARGET_APP="APP"
+fi
+
+echo ""
+echo "▶ めくる方向（次のページへ進む操作）を選択してください"
+if [ "$TARGET_APP" = "APP" ]; then
+    echo "  1: 画面の【左端】をクリックして進む (マンガ等・右から左に読む本)"
+    echo "  2: 画面の【右端】をクリックして進む (実用書等・左から右に読む本)"
+else
+    echo "  1: 【左矢印キー】で進む (マンガ等・右から左に読む本)"
+    echo "  2: 【右矢印キー】で進む (実用書等・左から右に読む本)"
+fi
+read -p "番号を入力 (1-2) [デフォルト: 1]: " TURN_CHOICE
+
+if [ "$TURN_CHOICE" = "2" ]; then
+    TURN_DIR="RIGHT"
+else
+    TURN_DIR="LEFT"
+fi
+
+echo ""
+echo "▶ 取得した画像の見開き分割設定を選択してください"
+echo "  1: 横書き・実用書として分割 (左ページが先、右ページが後: L2R)"
+echo "  2: 縦書き・マンガとして分割 (右ページが先、左ページが後: R2L)"
+echo "  3: 分割しない (1画面1ページとしてそのまま保存: NONE)"
 read -p "番号を入力 (1-3) [デフォルト: 2]: " SPLIT_CHOICE
 
 case "$SPLIT_CHOICE" in
@@ -63,7 +92,7 @@ fi
 
 echo ""
 echo "▶ 1. Kindleのキャプチャと画像分割を開始します..."
-python 01_capture_kindle.py $PAGES $SPREAD_MODE
+python 01_capture_kindle.py $PAGES $TARGET_APP $TURN_DIR $SPREAD_MODE
 
 echo ""
 echo "▶ 2. Cloud Vision APIによる超高精度文字起こしを実行中..."

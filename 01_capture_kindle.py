@@ -11,13 +11,15 @@ from PIL import Image
 # ==========================================
 import sys
 
-# 処理するページ数と分割モード
+# 処理するページ数と各種設定
 try:
     PAGES_TO_SCAN = int(sys.argv[1]) if len(sys.argv) > 1 else 5
 except ValueError:
     PAGES_TO_SCAN = 5
 
-SPREAD_MODE = sys.argv[2] if len(sys.argv) > 2 else 'R2L'
+TARGET_APP = sys.argv[2] if len(sys.argv) > 2 else 'APP'
+TURN_DIR = sys.argv[3] if len(sys.argv) > 3 else 'LEFT'
+SPREAD_MODE = sys.argv[4] if len(sys.argv) > 4 else 'R2L'
 
 START_PAGE = 1
 END_PAGE = PAGES_TO_SCAN
@@ -127,20 +129,27 @@ def main():
         # 見開きの場合は画像を2枚に分割する
         split_if_spread(img_path)
         
-        # ページめくり (マウスクリック方式)
+        # ページめくり
         if i < END_PAGE:
-            # ウィンドウの中心Y座標
-            click_y = bounds['Y'] + (bounds['Height'] / 2)
-            
-            if SPREAD_MODE == 'R2L':
-                # マンガ等（右から左）はウィンドウの左端をクリック
-                click_x = bounds['X'] + 50
+            if TARGET_APP == 'APP':
+                # Kindleアプリの場合: マウスクリック方式
+                click_y = bounds['Y'] + (bounds['Height'] / 2)
+                if TURN_DIR == 'LEFT':
+                    click_x = bounds['X'] + 50
+                else:
+                    click_x = bounds['X'] + bounds['Width'] - 50
+                pyautogui.click(x=click_x, y=click_y)
             else:
-                # 実用書等（左から右）はウィンドウの右端をクリック
-                click_x = bounds['X'] + bounds['Width'] - 50
-            
-            # マウスを移動してクリック
-            pyautogui.click(x=click_x, y=click_y)
+                # Kindle Cloud Readerの場合: キーボード(矢印キー)方式
+                if TURN_DIR == 'LEFT':
+                    pyautogui.keyDown('left')
+                    time.sleep(0.1)
+                    pyautogui.keyUp('left')
+                else:
+                    pyautogui.keyDown('right')
+                    time.sleep(0.1)
+                    pyautogui.keyUp('right')
+                    
             time.sleep(WAIT_TIME)
             
     print(f"\n🎉 キャプチャ完了。画像を {IMG_DIR} に保存しました。")
