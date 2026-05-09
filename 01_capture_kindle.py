@@ -72,7 +72,34 @@ def split_if_spread(img_path: Path):
     if not SPLIT_SPREAD:
         return
         
+    from PIL import ImageChops
     img = Image.open(img_path)
+    
+    # ---------------------------------------------------------
+    # 【スマート・トリミング機能】
+    # フルスクリーンの左右にできる黒帯・白帯などの「無駄な余白」を
+    # 自動検知して切り落とします。
+    # ---------------------------------------------------------
+    # MacのスクショはRGBA（透明度あり）のため、RGBに変換してから比較する
+    img_rgb = img.convert('RGB')
+    bg_color = img_rgb.getpixel((10, 10))
+    bg = Image.new('RGB', img_rgb.size, bg_color)
+    
+    # 背景との差分を取得
+    diff = ImageChops.difference(img_rgb, bg)
+    # わずかなノイズを無視するためグレースケール化してしきい値(10)を適用
+    diff_L = diff.convert('L')
+    diff_thresh = diff_L.point(lambda p: p > 10 and 255)
+    
+    bbox = diff_thresh.getbbox()
+    
+    if bbox:
+        # 余白を切り落とした画像に更新
+        img = img.crop(bbox)
+        # 一旦、余白のない綺麗な状態で元のファイルを上書き保存する
+        # （これにより分割されない表紙ページもPDF上で綺麗に表示されます）
+        img.save(img_path)
+    
     w, h = img.size
     
     # 横幅が高さの1.1倍以上あれば見開きと判定
