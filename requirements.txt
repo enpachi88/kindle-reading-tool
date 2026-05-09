@@ -1,0 +1,9 @@
+tqdm==4.66.2
+google-cloud-vision==3.5.0
+python-dotenv==1.0.1
+pyautogui==0.9.54
+pillow==10.2.0
+pytesseract==0.3.10
+pyobjc-framework-Quartz==10.1
+opencv-python==4.9.0.80
+img2pdf==0.5.1
